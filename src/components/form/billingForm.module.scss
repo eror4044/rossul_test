@@ -9,10 +9,16 @@ form{
     padding: 15px;
     border-radius: 6px;
     width: 700px;
+    position: relative;
     .row{
         width: 100%;
         display: flex;
         justify-content: space-between;
         gap: 10px;
+    }
+    .del_btn{
+        position: absolute;
+        right: 0;
+        font-weight: 900;
     }
 }

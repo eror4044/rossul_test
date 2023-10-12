@@ -1,12 +1,16 @@
-import { Button, FormControl, FormHelperText, Input, InputLabel, MenuItem, OutlinedInput, Select, TextField } from "@mui/material"
+import { Button, FormControl, FormHelperText, Icon, IconButton, InputLabel, MenuItem, OutlinedInput, Select, Stack, TextField } from "@mui/material"
 import styles from './billingForm.module.scss'
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { SvgIcon } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
+import { IFormDataModel } from "../../models/formDataModel"
 
 export interface IBillingForm {
     onSave:any
     onRemove:any
+    setFormIsValid:any
     id:number
     canDelete:boolean
 }
@@ -27,7 +31,22 @@ export const BillingForm = (props:IBillingForm) =>{
     const handleNoteSymbolsChange = (event:any) => {
         setNoteSymbolsCount(event.target.value.length);
     }
-    
+
+    const checkFormIsValid = (formData:any) => {
+        let isValid = true;
+        if (
+            !formData.amount ||
+            !formData.account ||
+            !formData.payee ||
+            !formData.date ||
+            !formData.repeat ||
+            !formData.note
+        ) {
+            isValid = false;
+        }
+        return isValid
+    };
+
     const handleFieldChange = (name:string, event:any) => {
         let valueToUpdate = event.target?.value;
       
@@ -46,36 +65,33 @@ export const BillingForm = (props:IBillingForm) =>{
           [name]: valueToUpdate,
         }));
         if (
-            formData.amount.length > 0 &&
-            formData.account.length > 0 &&
-            formData.payee.length > 0 &&
-            formData.date &&
-            formData.repeat.length > 0 &&
-            formData.note.length > 0
+            checkFormIsValid(formData)
         ) {
+            props.setFormIsValid(true)
             props.onSave(formData);
         }
     };
 
     return(
         <form className={styles.form_container}>
-            <Button disabled={!props.canDelete} onClick={() => props.onRemove(props.id - 1)}>Delete</Button>
+            <Button disabled={!props.canDelete} className={styles.del_btn} onClick={() => props.onRemove(props.id)}>
+                x
+            </Button>
             <FormControl id="amount">
-            <TextField
-                label="Amount"
-                id="amount"
-                variant="standard"
-                defaultValue={'0'}
-                onChange={(e: any) => handleFieldChange("amount", e)}
-                error={formData.amount.length < 1}
-                helperText={formData.amount.length < 1 ? "Please add value" : ""}
-                inputProps={{
-                    inputMode: "numeric",
-                    pattern: "[0-9]*",
-                }}
-            />
+                <TextField
+                    label="Amount"
+                    id="amount"
+                    variant="standard"
+                    defaultValue={'0'}
+                    onChange={(e: any) => handleFieldChange("amount", e)}
+                    error={formData.amount.length < 1}
+                    helperText={formData.amount.length < 1 ? "Please add value" : ""}
+                    inputProps={{
+                        inputMode: "numeric",
+                        pattern: "[0-9]*",
+                    }} />
             </FormControl>
-            <div className={styles.row}>
+            <Stack width={'100%'} direction="row" spacing={2}>
                 <FormControl fullWidth error={formData.account.length === 0}>
                     <InputLabel id="account_label">From Account</InputLabel>
                     <Select
@@ -107,14 +123,13 @@ export const BillingForm = (props:IBillingForm) =>{
                     </Select>
                     {formData.payee.length === 0 && <FormHelperText>Please select a payee</FormHelperText>}
                 </FormControl>
-            </div>
-            <div className={styles.row}>
+            </Stack>
+            <Stack width={'100%'} direction="row" spacing={2}>
                 <FormControl fullWidth error={formData.date === null}>
                     <LocalizationProvider dateAdapter={AdapterMoment}>
                         <DatePicker
                             label="Date"
-                            onChange={(e: any) => handleFieldChange("date", e)}
-                        />
+                            onChange={(e: any) => handleFieldChange("date", e)} />
                     </LocalizationProvider>
                     {formData.date === null && <FormHelperText>Please select a date</FormHelperText>}
                 </FormControl>
@@ -136,10 +151,11 @@ export const BillingForm = (props:IBillingForm) =>{
                 </FormControl>
                 <FormControl>
                     <InputLabel htmlFor="note">Note</InputLabel>
-                    <OutlinedInput onChange={(e:any) => {handleFieldChange("note", e)}} required={true} inputProps={{maxLength:31}} label="Outlined"  id="note"/>
-                    <FormHelperText style={{textAlign:'right'}} id="note-helper-text">{noteSymbolsCount}/31</FormHelperText>
+                    <OutlinedInput onChange={(e: any) => { handleFieldChange("note", e) } } required={true} inputProps={{ maxLength: 31 }} label="Outlined" id="note" />
+                    <FormHelperText style={{ textAlign: 'right' }} id="note-helper-text">{noteSymbolsCount}/31</FormHelperText>
                 </FormControl>
-            </div>
+            </Stack>
         </form>
+        
     )
 }
