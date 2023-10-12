@@ -23,8 +23,7 @@
     "react-scripts": "5.0.1",
     "sass": "^1.69.0",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4",
-    "homepage": "https://eror4044.github.io/rossul_test/"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
